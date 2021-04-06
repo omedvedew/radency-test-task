@@ -1,0 +1,11 @@
+td:invalid {
+    background-color: red;
+}
+
+td {
+    background-color: azure;
+}
+
+.invalid {
+    background-color: red;
+}

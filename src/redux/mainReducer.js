@@ -1,5 +1,5 @@
 export const mainReducer = (state = {
-    CSVItems: {},
+    CSVItems: [],
 }, action) => {
     switch (action.type) {
         case "ADD_INFO_FROM_CSV": 

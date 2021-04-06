@@ -1,6 +1,10 @@
 import React from 'react';
 import CSVReader from 'react-csv-reader'; 
 import { connect } from 'react-redux';
+import CSVItem from './CSVItem';
+import { keys } from 'lodash';
+
+import '../common/csv.css';
 
 const App = ({
   state,
@@ -15,27 +19,33 @@ const App = ({
     state.CSVItems[`item${i}`] = item.join().split("; ")
   })
   : console.log('waiting for info');
-
-  const renderTable = (obj) => {
-    for (let key in obj) {
-      console.log(key);
-     return (
-      <tr id={key}>
-        {
-          obj[key].map((data, i) => <td key={i}>{data}</td>)
-        }
-      </tr>
-     )
-    }
-  }
+ 
+  // Validating table content
+  function validateCell() {
+    let rows = document.querySelectorAll('tr');
+    console.log(rows);
+    for (let i=1; i<rows.length-1; i++) {
+      if (rows[i].cells[3].textContent.includes('@') === false) {rows[i].cells[3].classList.add("invalid")};
+      if (+rows[i].cells[4].textContent <= 20) {rows[i].cells[4].classList.add("invalid")};
+      if (+rows[i].cells[5].textContent > +rows[i].cells[4].textContent || +rows[i].cells[5].textContent < 0) {rows[i].cells[5].classList.add("invalid")};
+      if (+rows[i].cells[6].textContent > 1000000) {rows[i].cells[6].classList.add("invalid")};
+      if (+rows[i].cells[8].textContent.length > 2) {rows[i].cells[8].textContent = rows[i].cells[8].textContent.slice(0, 2)};
+      if (+rows[i].cells[2].textContent < 12 || rows[i].cells[2].textContent.startsWith("+1") === false) {rows[i].cells[2].classList.add("invalid")};
+      if (rows[i].cells[7].textContent.toLowerCase() === 'true' || rows[i].cells[7].textContent.toLowerCase() === 'false') {continue} else {rows[i].cells[7].classList.add("invalid")};
+    };
+  };
+  setTimeout(validateCell, 500);
+  
   return (
     <>
       <CSVReader onFileLoaded={(data, fileInfo) => getCSVInfo(data)}/>
+      
       {
         state.CSVInfo ?
-        <table style={{border: '1px solid black'}}>
+        <table border="1" cellSpacing="0" cellPadding="0">
           <tbody>
             <tr>
+              <td>ID</td>
               <td>Name</td>
               <td>Phone</td>
               <td>Email</td>
@@ -47,10 +57,15 @@ const App = ({
               <td>Expiration date</td>
               <td>License number</td>
             </tr>
-            {renderTable(state.CSVItems)}
+            {keys(state.CSVItems).map((data, i) => (
+              <tr key={i}>
+                <td>{i+1}</td>
+                <CSVItem data={state.CSVItems[data]}/>
+              </tr>
+            ))}
           </tbody>
         </table>
-        : console.log("waiting for info")
+        : console.log('waitin for info')
       }
     </>
   )
